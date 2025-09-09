@@ -13,8 +13,8 @@ def calc_returns(prices: pd.DataFrame):
     returns = prices.pct_change().fillna(0)
     return returns
 
-def equity_curve(returns):
-    eq=(1+returns).cumprod() * 1000
+def equity_curve(returns, initial_capital = 1000):
+    eq=(1+returns).cumprod() * initial_capital
     return eq
 
 def drawdowns(returns):
