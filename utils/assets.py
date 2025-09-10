@@ -3,6 +3,11 @@ import pandas as pd
 import numpy as np
 import scipy.stats as s
 
+def get_tickers():
+    tickers = pd.read_json('company_tickers.json', orient="records")
+    return tickers.T['ticker'].to_list()
+
+
 def get_price_data(tickers: list, period: str ):
     prices = yf.Tickers(tickers=tickers).history(period=period)
     prices= prices['Close']
