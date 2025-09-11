@@ -5,7 +5,7 @@ def gen_eq_weights(n):
     return np.repeat(1/n, n)
 
 def _gen_random_weights(n):
-    r=np.random.random(5)
+    r=np.random.random(n)
     return r/sum(r)
 
 def gen_random_pfs(n_pfs, tickers):
@@ -15,8 +15,20 @@ def gen_random_pfs(n_pfs, tickers):
         pfs.loc[i] = pf
     return pfs
 
-def calc_pf_metrics(pfs, ann_avg_ret, ann_cov):
-    return None
+def calc_pf_metrics(pfs: pd.DataFrame, asset_returns: pd.DataFrame, rf):
+    ann_avg_ret = (1+asset_returns.mean()) ** 252 - 1
+    ann_cov = asset_returns.cov() * 252
+    vols = []
+    pf_returns = []
+    for i, r in pfs.iterrows():    
+        pf_returns.append(ann_avg_ret.mul(r).sum())
+        vols.append(np.sqrt(
+            r.T @ ann_cov @ r
+        ))
+    pfs["Return"] = pf_returns
+    pfs["Volatility"] = vols
+    pfs["Sharpe"] = (pfs["Return"]-rf)/pfs["Volatility"]
+    return pfs
 
 def calc_pf_returns(asset_returns, w):
     return asset_returns.mul(w, axis=1).sum(axis = 1)
