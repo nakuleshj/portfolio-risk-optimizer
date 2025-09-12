@@ -163,14 +163,16 @@ with tabs[1]:
 
     dds = {}
     ec = {}
+    pnl = {}
     for i, k in enumerate(pf_map.keys()):
         selected_pf = pf_map.get(k)[tickers].sort_values()
-        pf_returns = pf.calc_pf_returns(asset_returns, pf_map.get(k)[tickers])
+        pf_returns = pf.calc_pf_pnl(asset_returns, pf_map.get(k)[tickers])
         # pf_returns.name = k
         equity_curve_pf = assets.equity_curve(pf_returns, initial_capital)
         drawdowns_pf = assets.drawdowns(pf_returns)
         ec[k] = equity_curve_pf
         dds[k] = drawdowns_pf
+        pnl[k] = pf_returns
         alloc_fig = px.pie(
             selected_pf, names=selected_pf.index, values=selected_pf.values, title=k
         )
@@ -198,4 +200,25 @@ with tabs[1]:
     st.plotly_chart(dd_fig)
 
 with tabs[2]:
-    st.subheader("Portfolio PnL")
+      st.subheader("Portfolio PnL")
+      pnl_df = pd.DataFrame(pnl)
+      pnl_df.columns.name = "Portfolios:"
+      pnl_fig = px.line(pnl_df * 100)
+      pnl_fig.update_layout(xaxis_title="Date", yaxis_title="Returns (%)")
+
+      st.plotly_chart(pnl_fig)
+      st.markdown("### Distribution")
+
+      pnl_dist_fig = px.histogram(
+        pnl_df * 100, 
+      )
+      pnl_dist_fig.update_layout(xaxis_title="Returns (%)", yaxis_title="Frequency")
+      st.plotly_chart(pnl_dist_fig)
+
+      st.subheader("Portfolio VaR / ES")
+      alpha = st.select_slider("Confidence Level", options=[0.95, 0.98, 0.99], value=0.98)
+      method = st.selectbox("Method", ["Historical", "Parametric (Normal)", "Parametric (t)", "Monte Carlo"])
+      sims = st.number_input("Monte Carlo simulations", 1000, 25000, 10000, 1000)
+      dof = st.number_input("t dof", 3, 50, 7)
+
+
