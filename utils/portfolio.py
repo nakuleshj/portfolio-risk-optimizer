@@ -33,5 +33,5 @@ def calc_pf_metrics(pfs: pd.DataFrame, asset_returns: pd.DataFrame, rf):
     return pfs
 
 
-def calc_pf_returns(asset_returns, w):
+def calc_pf_pnl(asset_returns, w):
     return asset_returns.mul(w, axis=1).sum(axis=1)
