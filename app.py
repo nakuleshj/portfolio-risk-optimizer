@@ -154,7 +154,7 @@ with tabs[1]:
     eqw_pf = pf.gen_eq_weights(n=len(tickers))
     eqw_pf = pd.Series(eqw_pf, index=tickers)
     pf_map = {
-        "Equally Weighted": eqw_pf,
+        "Equally Weighted (Benchmark)": eqw_pf,
         "Max Sharpe Ratio (MSR)": msr_pf,
         "Global Minimum Volatility (GMV)": gmv_pf,
     }
@@ -173,10 +173,21 @@ with tabs[1]:
         ec[k] = equity_curve_pf
         dds[k] = drawdowns_pf
         pnl[k] = pf_returns
-        alloc_fig = px.pie(
-            selected_pf, names=selected_pf.index, values=selected_pf.values, title=k
-        )
-        st.plotly_chart(alloc_fig)
+        if i>0:
+            with cols_pie[i-1]:
+                  alloc_fig = px.pie(
+                        selected_pf, names=selected_pf.index, values=selected_pf.values, title=k
+                  )
+                  alloc_fig.update_layout(
+                       legend=dict(
+                        orientation="h",  
+                        yanchor="bottom", 
+                        y=-0.2,           
+                        xanchor="center", 
+                        x=0.5             
+                        )
+                  )
+                  st.plotly_chart(alloc_fig)
 
     st.subheader(f"Growth of Hypothetical ${initial_capital:,}")
 
